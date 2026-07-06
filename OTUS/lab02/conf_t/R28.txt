@@ -1,0 +1,181 @@
+
+!
+! Last configuration change at 10:20:02 UTC Sun Jul 5 2026
+!
+version 15.5
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname Router
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+cts logging verbose
+!
+!
+!
+redundancy
+!
+!
+track 10 ip sla 1 reachability
+ delay down 10 up 5
+!
+track 20 ip sla 2 reachability
+ delay down 10 up 5
+!
+! 
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ no shutdown
+ ip address 10.255.255.1 255.255.255.255
+!
+interface Ethernet0/0
+ no shutdown
+ description UPlink R26-R28
+ ip address 45.0.2.2 255.255.255.252
+!
+interface Ethernet0/1
+ no shutdown
+ description UPlink R25-R28
+ ip address 32.0.5.2 255.255.255.252
+!
+interface Ethernet0/2
+ no shutdown
+ description link R28-sw29
+ ip address 172.20.50.1 255.255.255.252
+!
+interface Ethernet0/2.250
+ no shutdown
+ encapsulation dot1Q 250
+ ip address 192.168.20.1 255.255.255.224
+ ip policy route-map PBR_to_R26
+!
+interface Ethernet0/3
+ no shutdown
+ no ip address
+ shutdown
+!
+interface Ethernet1/0
+ no shutdown
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no shutdown
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no shutdown
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no shutdown
+ no ip address
+ shutdown
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 45.0.2.1 track 10
+ip route 0.0.0.0 0.0.0.0 32.0.5.1 10 track 20
+!
+ip access-list extended acl_vpc30
+ permit ip host 192.168.20.10 any
+ip access-list extended acl_vpc31
+ permit ip host 192.168.20.30 any
+!
+ip sla 1
+ icmp-echo 45.0.2.1 source-interface Ethernet0/0
+ frequency 5
+ip sla schedule 1 life forever start-time now
+ip sla 2
+ icmp-echo 32.0.5.1 source-interface Ethernet0/1
+ frequency 5
+ip sla schedule 2 life forever start-time now
+!
+route-map PBR_to_R26 permit 10
+ match ip address acl_vpc30
+ set ip next-hop verify-availability 45.0.2.1 1 track 10
+!
+route-map PBR_to_R25 permit 20
+ match ip address acl_vpc31
+ set ip next-hop verify-availability 32.0.5.1 1 track 20
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
