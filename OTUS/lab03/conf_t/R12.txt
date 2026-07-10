@@ -1,0 +1,40 @@
+hostname R12
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+interface Loopback0
+ description Management
+ ip address 10.255.255.12 255.255.255.255
+ ipv6 address 2001:DB8::12/128
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/0
+ description Link to SW4
+ ip address 10.100.71.1 255.255.255.240
+ ipv6 address 2001:DB8:100:71::1/64
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/2
+ description Link to R14 (Zone 10)
+ ip address 100.40.55.2 255.255.255.252
+ ipv6 address 2001:DB8:10:1::2/64
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/3
+ description Link to R15 (Zone 10)
+ ip address 10.22.33.2 255.255.255.252
+ ipv6 address 2001:DB8:10:4::2/64
+ ipv6 ospf 1 area 10
+!
+router ospf 1
+ router-id 10.255.255.12
+ network 10.22.33.0 0.0.0.3 area 10
+ network 10.100.71.0 0.0.0.15 area 10
+ network 10.255.255.12 0.0.0.0 area 10
+ network 100.40.55.0 0.0.0.3 area 10
+!
+ipv6 router ospf 1
+ router-id 10.255.255.12
+!

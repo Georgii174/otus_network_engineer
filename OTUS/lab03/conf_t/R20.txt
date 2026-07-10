@@ -1,0 +1,26 @@
+hostname R20
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+interface Loopback0
+ description Management
+ ip address 10.255.255.20 255.255.255.255
+ ipv6 address 2001:DB8::20/128
+ ipv6 ospf 1 area 102
+!
+interface Ethernet0/0
+ description Link to R15 (Zone 102)
+ ip address 10.30.11.2 255.255.255.252
+ ipv6 address 2001:DB8:102::2/64
+ ipv6 ospf 1 area 102
+!
+router ospf 1
+ router-id 10.255.255.20
+ network 10.30.11.0 0.0.0.3 area 102
+ network 10.255.255.20 0.0.0.0 area 102
+!
+ipv6 router ospf 1
+ router-id 10.255.255.20
+!

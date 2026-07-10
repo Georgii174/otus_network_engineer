@@ -1,0 +1,67 @@
+hostname R15_Core
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+interface Loopback0
+ description Management
+ ip address 10.255.255.15 255.255.255.255
+ ipv6 address 2001:DB8::15/128
+ ipv6 ospf 1 area 0
+!
+interface Ethernet0/0
+ description Link to R13 (Zone 10)
+ ip address 10.40.21.1 255.255.255.252
+ ipv6 address 2001:DB8:10:3::1/64
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/1
+ description Link to R12 (Zone 10)
+ ip address 10.22.33.1 255.255.255.252
+ ipv6 address 2001:DB8:10:4::1/64
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/2
+ description UPLink R21-R15
+ ip address 188.0.0.2 255.255.255.252
+ ipv6 address 2001:DB8:0:21::2/64
+!
+interface Ethernet0/3
+ description Link to R20 (Zone 102)
+ ip address 10.30.11.1 255.255.255.252
+ ipv6 address 2001:DB8:102::1/64
+ ipv6 ospf 1 area 102
+!
+interface Ethernet1/0
+ description Link to R14 (Backbone)
+ ip address 10.0.0.2 255.255.255.252
+ ipv6 address 2001:DB8:0:1::2/64
+ ipv6 ospf 1 area 0
+!
+ip prefix-list Filter_101 seq 5 deny 10.132.35.0/30
+ip prefix-list Filter_101 seq 10 deny 10.132.35.0/30 le 32
+ip prefix-list Filter_101 seq 15 permit 0.0.0.0/0 le 32
+!
+ipv6 prefix-list Filter_101v6 seq 5 deny 2001:DB8:101::/64
+ipv6 prefix-list Filter_101v6 seq 10 deny 2001:DB8:101::/64 le 128
+ipv6 prefix-list Filter_101v6 seq 15 permit ::/0 le 128
+!
+router ospf 1
+ router-id 10.255.255.15
+ area 102 filter-list prefix Filter_101 in
+ network 10.0.0.0 0.0.0.3 area 0
+ network 10.22.33.0 0.0.0.3 area 10
+ network 10.30.11.0 0.0.0.3 area 102
+ network 10.40.21.0 0.0.0.3 area 10
+ network 10.255.255.15 0.0.0.0 area 0
+ default-information originate always
+!
+ip route 0.0.0.0 0.0.0.0 188.0.0.1
+ipv6 route ::/0 2001:DB8:0:21::1
+!
+ipv6 router ospf 1
+ router-id 10.255.255.15
+ area 102 filter-list prefix Filter_101v6 out
+ default-information originate always
+!

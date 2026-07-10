@@ -1,0 +1,57 @@
+hostname R14_Core
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+interface Loopback0
+ description Management
+ ip address 10.255.255.14 255.255.255.255
+ ipv6 address 2001:DB8::14/128
+ ipv6 ospf 1 area 0
+!
+interface Ethernet0/0
+ description Link to R12 (Zone 10)
+ ip address 100.40.55.1 255.255.255.252
+ ipv6 address 2001:DB8:10:1::1/64
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/1
+ description Link to R13 (Zone 10)
+ ip address 10.10.25.1 255.255.255.252
+ ipv6 address 2001:DB8:10:2::1/64
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/2
+ description UPLink R22-R14
+ ip address 172.0.20.2 255.255.255.252
+ ipv6 address 2001:DB8:0:20::2/64
+!
+interface Ethernet0/3
+ description Link to R19 (Zone 101)
+ ip address 10.132.35.1 255.255.255.252
+ ipv6 address 2001:DB8:101::1/64
+ ipv6 ospf 1 area 101
+!
+interface Ethernet1/0
+ description Link to R15 (Backbone)
+ ip address 10.0.0.1 255.255.255.252
+ ipv6 address 2001:DB8:0:1::1/64
+ ipv6 ospf 1 area 0
+!
+router ospf 1
+ router-id 10.255.255.14
+ network 10.0.0.0 0.0.0.3 area 0
+ network 10.10.25.0 0.0.0.3 area 10
+ network 10.132.35.0 0.0.0.3 area 101
+ network 10.255.255.14 0.0.0.0 area 0
+ network 100.40.55.0 0.0.0.3 area 10
+ default-information originate always
+!
+ip route 0.0.0.0 0.0.0.0 172.0.20.1
+ipv6 route ::/0 2001:DB8:0:20::1
+!
+ipv6 router ospf 1
+ router-id 10.255.255.14
+ default-information originate always
+!

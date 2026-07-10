@@ -1,0 +1,26 @@
+hostname R19
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+interface Loopback0
+ description Management
+ ip address 10.255.255.19 255.255.255.255
+ ipv6 address 2001:DB8::19/128
+ ipv6 ospf 1 area 101
+!
+interface Ethernet0/0
+ description Link to R14 (Zone 101)
+ ip address 10.132.35.2 255.255.255.252
+ ipv6 address 2001:DB8:101::2/64
+ ipv6 ospf 1 area 101
+!
+router ospf 1
+ router-id 10.255.255.19
+ network 10.132.35.0 0.0.0.3 area 101
+ network 10.255.255.19 0.0.0.0 area 101
+!
+ipv6 router ospf 1
+ router-id 10.255.255.19
+!
