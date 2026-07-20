@@ -1,0 +1,157 @@
+
+!
+version 15.5
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R17
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+cts logging verbose
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description Management
+ ip address 10.255.255.17 255.255.255.255
+ ipv6 address 2001:DB8::17/128
+!
+interface Ethernet0/0
+ description link R17-SW9
+ ip address 10.10.7.1 255.255.255.252
+ ipv6 address 2001:DB8:1:7::1/64
+!
+interface Ethernet0/1
+ description link R17-R18
+ ip address 10.10.1.2 255.255.255.252
+ ipv6 address 2001:DB8:1:1::2/64
+!
+interface Ethernet0/2
+ description rezerv SW10
+ no ip address
+!
+interface Ethernet0/2.260
+ encapsulation dot1Q 260
+ ip address 192.168.30.1 255.255.255.224
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+!
+router eigrp EIGRP_SPB
+ !
+ address-family ipv4 unicast autonomous-system 2042
+  !
+  af-interface Ethernet0/0
+   summary-address 192.168.30.0 255.255.255.0
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  network 10.10.1.0 0.0.0.3
+  network 10.10.7.0 0.0.0.3
+  network 10.255.255.17 0.0.0.0
+  eigrp router-id 10.255.255.17
+ exit-address-family
+ !
+ address-family ipv6 unicast autonomous-system 2042
+  !
+  af-interface Ethernet0/0
+   summary-address 2001:DB8:260::/64
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  eigrp router-id 10.255.255.17
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
+

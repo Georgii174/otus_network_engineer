@@ -1,0 +1,151 @@
+version 15.5
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R18
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+cts logging verbose
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description Management
+ ip address 10.255.255.18 255.255.255.255
+ ipv6 address 2001:DB8::18/128
+!
+interface Ethernet0/0
+ description UPlink R18-R16
+ ip address 10.10.2.1 255.255.255.252
+ ipv6 address 2001:DB8:1:2::1/64
+!
+interface Ethernet0/1
+ description UPlink R18-R17
+ ip address 10.10.1.1 255.255.255.252
+ ipv6 address 2001:DB8:1:1::1/64
+!
+interface Ethernet0/2
+ description link R24-R18
+ ip address 52.10.5.2 255.255.255.252
+ ipv6 address 2001:DB8:0:52::2/64
+!
+interface Ethernet0/3
+ description link R26-R18
+ ip address 47.32.2.2 255.255.255.252
+ ipv6 address 2001:DB8:0:47::2/64
+!
+!
+router eigrp EIGRP_SPB
+ !
+ address-family ipv4 unicast autonomous-system 2042
+  !
+  topology base
+   redistribute static
+  exit-af-topology
+  network 10.10.1.0 0.0.0.3
+  network 10.10.2.0 0.0.0.3
+  network 10.255.255.18 0.0.0.0
+  eigrp router-id 10.255.255.18
+ exit-address-family
+ !
+ address-family ipv6 unicast autonomous-system 2042
+  !
+  topology base
+   redistribute static
+  exit-af-topology
+  eigrp router-id 10.255.255.18
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 52.10.5.1
+ip route 0.0.0.0 0.0.0.0 Null0
+ip route 0.0.0.0 0.0.0.0 47.32.2.1 10
+!
+ipv6 route ::/0 2001:DB8:0:47::1 10
+ipv6 route ::/0 2001:DB8:0:52::1
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
