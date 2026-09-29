@@ -1,0 +1,162 @@
+hostname R13
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+ipv6 multicast rpf use-bgp
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+cts logging verbose
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description Management
+ ip address 10.255.255.13 255.255.255.255
+ ipv6 address 2001:DB8::13/128
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/0
+ description Link to SW5
+ ip address 10.80.8.1 255.255.255.240
+ ipv6 address 2001:DB8:80:8::1/64
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/0.3
+ encapsulation dot1Q 3
+ ip address 10.160.55.1 255.255.255.240
+!
+interface Ethernet0/0.290
+ encapsulation dot1Q 290
+ ip address 192.168.62.1 255.255.255.224
+ ipv6 address 2001:DB8:62::1/64
+ ipv6 enable
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/1
+ no ip address
+ shutdown
+!
+interface Ethernet0/2
+ description Link to R15 (Zone 10)
+ ip address 10.40.21.2 255.255.255.252
+ ipv6 address 2001:DB8:10:3::2/64
+ ipv6 ospf 1 area 10
+!
+interface Ethernet0/3
+ description Link to R14 (Zone 10)
+ ip address 10.10.25.2 255.255.255.252
+ ipv6 address 2001:DB8:10:2::2/64
+ ipv6 ospf 1 area 10
+!
+interface Ethernet1/0
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no ip address
+ shutdown
+!
+router ospf 1
+ router-id 10.255.255.13
+ network 10.10.25.0 0.0.0.3 area 10
+ network 10.40.21.0 0.0.0.3 area 10
+ network 10.80.8.0 0.0.0.15 area 10
+ network 10.255.255.13 0.0.0.0 area 10
+ network 192.168.62.0 0.0.0.31 area 10
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 router ospf 1
+ router-id 10.255.255.13
+ passive-interface Ethernet0/0.290
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
