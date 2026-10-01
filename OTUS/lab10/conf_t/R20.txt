@@ -1,0 +1,130 @@
+hostname R20
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2
+clock timezone MSK 3 0
+clock calendar-valid
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+cts logging verbose
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description Management
+ ip address 10.255.255.20 255.255.255.255
+ ipv6 address 2001:DB8::20/128
+ ipv6 ospf 1 area 102
+!
+interface Ethernet0/0
+ description Link to R15 (Zone 102)
+ ip address 10.30.11.2 255.255.255.252
+ ipv6 address 2001:DB8:102::2/64
+ ipv6 ospf 1 area 102
+!
+interface Ethernet0/1
+ no ip address
+ shutdown
+!
+interface Ethernet0/2
+ no ip address
+ shutdown
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+router ospf 1
+ router-id 10.255.255.20
+ network 10.30.11.0 0.0.0.3 area 102
+ network 10.255.255.20 0.0.0.0 area 102
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+!
+ipv6 router ospf 1
+ router-id 10.255.255.20
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+ntp server 10.255.255.12
+ntp server 10.255.255.13
+!
+end

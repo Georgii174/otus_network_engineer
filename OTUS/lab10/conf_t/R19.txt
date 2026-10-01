@@ -1,0 +1,135 @@
+hostname R19
+!
+boot-start-marker
+boot-end-marker
+!
+!
+enable secret 5 $1$lUKE$Nd0oGtvPw7yM4RR9MTZgM1
+!
+no aaa new-model
+!
+!
+!
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2
+clock timezone MSK 3 0
+clock calendar-valid
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip cef
+ipv6 unicast-routing
+ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+cts logging verbose
+!
+!
+!
+redundancy
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+interface Loopback0
+ description Management
+ ip address 10.255.255.19 255.255.255.255
+ ipv6 address 2001:DB8::19/128
+ ipv6 ospf 1 area 101
+!
+interface Ethernet0/0
+ description Link to R14 (Zone 101)
+ ip address 10.132.35.2 255.255.255.252
+ ipv6 address 2001:DB8:101::2/64
+ ipv6 ospf 1 area 101
+!
+interface Ethernet0/1
+ no ip address
+ shutdown
+!
+interface Ethernet0/2
+ no ip address
+ shutdown
+!
+interface Ethernet0/3
+ no ip address
+ shutdown
+!
+router ospf 1
+ router-id 10.255.255.19
+ network 10.132.35.0 0.0.0.3 area 101
+ network 10.255.255.19 0.0.0.0 area 101
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 10.132.35.1
+!
+ipv6 router ospf 1
+ router-id 10.255.255.19
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ password cisco
+ logging synchronous
+ login
+line aux 0
+line vty 0 4
+ password cisco
+ login
+ transport input telnet
+!
+ntp server 10.255.255.12
+ntp server 10.255.255.13
+!
+end
