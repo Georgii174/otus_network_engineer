@@ -1,0 +1,197 @@
+hostname R27
+!
+boot-start-marker
+boot-end-marker
+!
+!
+!
+no aaa new-model
+!
+!
+!
+bsd-client server url https://cloudsso.cisco.com/as/token.oauth2
+mmi polling-interval 60
+no mmi auto-configure
+no mmi pvc
+mmi snmp-timeout 180
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+
+
+!
+!
+!
+!
+ip cef
+no ipv6 cef
+!
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+cts logging verbose
+!
+!
+!
+redundancy
+!
+!
+! 
+!
+crypto ikev2 proposal IKEv2-PROP 
+ encryption aes-cbc-256
+ integrity sha512
+ group 14
+!
+crypto ikev2 policy IKEv2-POL 
+ proposal IKEv2-PROP
+!
+crypto ikev2 keyring KEYRING
+ peer HUB
+  address 188.0.0.2
+  pre-shared-key cisco123
+ !
+!
+!
+crypto ikev2 profile IKEv2-PROF-DMVPN
+ match identity remote address 188.0.0.2 255.255.255.255 
+ authentication remote pre-share
+ authentication local pre-share
+ keyring local KEYRING
+ dpd 10 5 periodic
+!
+!
+!
+crypto ipsec transform-set TS esp-aes 256 esp-sha512-hmac 
+ mode tunnel
+!
+crypto ipsec profile IPSEC-PROF-DMVPN
+ set transform-set TS 
+ set ikev2-profile IKEv2-PROF-DMVPN
+!
+!
+!
+!
+!
+!
+!
+interface Tunnel1
+ no shutdown
+ description DMVPN-Spoke (no IPSec yet)
+ ip address 10.100.200.2 255.255.255.0
+ no ip redirects
+ ip mtu 1240
+ ip nhrp authentication DMVPNKEY
+ ip nhrp map 10.100.200.1 188.0.0.2
+ ip nhrp map multicast 188.0.0.2
+ ip nhrp network-id 100
+ ip nhrp nhs 10.100.200.1
+ ip tcp adjust-mss 1200
+ keepalive 10 3
+ tunnel source Ethernet0/0
+ tunnel mode gre multipoint
+ tunnel key 100
+ tunnel protection ipsec profile IPSEC-PROF-DMVPN
+!
+interface Ethernet0/0
+ no shutdown
+ description link R27-R25
+ ip address 32.0.2.2 255.255.255.252
+!
+interface Ethernet0/1
+ no shutdown
+ no ip address
+ shutdown
+!
+interface Ethernet0/2
+ no shutdown
+ no ip address
+ shutdown
+!
+interface Ethernet0/3
+ no shutdown
+ no ip address
+ shutdown
+!
+interface Ethernet1/0
+ no shutdown
+ no ip address
+ shutdown
+!
+interface Ethernet1/1
+ no shutdown
+ no ip address
+ shutdown
+!
+interface Ethernet1/2
+ no shutdown
+ no ip address
+ shutdown
+!
+interface Ethernet1/3
+ no shutdown
+ no ip address
+ shutdown
+!
+!
+router eigrp EIGRP_DMVPN
+ !
+ address-family ipv4 unicast autonomous-system 100
+  !
+  af-interface Tunnel1
+   bandwidth-percent 100
+   hello-interval 60
+   hold-time 300
+   no split-horizon
+  exit-af-interface
+  !
+  topology base
+  exit-af-topology
+  neighbor 10.100.200.1 Tunnel1
+  network 10.100.200.0 0.0.0.255
+  network 32.0.2.0 0.0.0.3
+ exit-address-family
+!
+ip forward-protocol nd
+!
+!
+no ip http server
+no ip http secure-server
+ip route 0.0.0.0 0.0.0.0 32.0.2.1
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ logging synchronous
+line aux 0
+line vty 0 4
+ login
+ transport input none
+!
+!
+end
